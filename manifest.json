@@ -6,8 +6,9 @@
   "background": {
     "service_worker": "worker.js"
   },
-"web_accessible_resources": [{
-    "resources": [
+  "web_accessible_resources": [
+    {
+      "resources": [
         "devtools.js",
         "data/inject/anti-anti-debug.js",
         "data/inject/copyOverride.js",
@@ -22,14 +23,20 @@
         "data/inject/mock_code/minifiedBackground.js",
         "data/inject/mock_code/minifiedContent-script.js",
         "data/inject/mock_code/rules.json"
-    ],
-    "matches": ["http://*/*", "https://*/*", "http://localhost/*", "http://127.0.0.1/*"]
-  }],
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ]
+    }
+  ],
   "permissions": [
     "management",
     "tabs",
     "activeTab",
-    "contextMenus",   
+    "contextMenus",
     "clipboardWrite",
     "clipboardRead",
     "storage",
@@ -42,11 +49,14 @@
     "webRequest"
   ],
   "host_permissions": [
-      "*://*/*"
+    "*://*/*"
   ],
   "externally_connectable": {
-     "matches": ["http://*/*", "https://*/*"]
-   },
+    "matches": [
+      "http://*/*",
+      "https://*/*"
+    ]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -81,16 +91,18 @@
     },
     {
       "matches": [
-          "<all_urls>"
+        "<all_urls>"
       ],
       "all_frames": true,
       "run_at": "document_start",
       "js": [
-          "devtools.js"
+        "devtools.js"
       ]
     },
     {
-      "js": ["data/inject/anti-anti-debug.js"],
+      "js": [
+        "data/inject/anti-anti-debug.js"
+      ],
       "run_at": "document_start",
       "all_frames": true,
       "matchOriginAsFallback": true,
@@ -100,7 +112,9 @@
       ]
     },
     {
-      "js": ["data/inject/screenshare-bridge.js"],
+      "js": [
+        "data/inject/screenshare-bridge.js"
+      ],
       "run_at": "document_start",
       "all_frames": true,
       "matchOriginAsFallback": true,
@@ -110,10 +124,15 @@
         "https://*.vit.ac.in/*",
         "https://app.codility.com/*"
       ],
-      "exclude_matches": ["https://*.examly.io/result*","https://*.vit.ac.in/result"]
+      "exclude_matches": [
+        "https://*.examly.io/result*",
+        "https://*.vit.ac.in/result"
+      ]
     },
     {
-      "js": ["data/inject/screenshare.js"],
+      "js": [
+        "data/inject/screenshare.js"
+      ],
       "run_at": "document_start",
       "all_frames": true,
       "matchOriginAsFallback": true,
@@ -124,7 +143,10 @@
         "https://*.vit.ac.in/*",
         "https://app.codility.com/*"
       ],
-      "exclude_matches": ["https://*.examly.io/result*","https://*.vit.ac.in/result"]
+      "exclude_matches": [
+        "https://*.examly.io/result*",
+        "https://*.vit.ac.in/result"
+      ]
     }
   ],
   "commands": {

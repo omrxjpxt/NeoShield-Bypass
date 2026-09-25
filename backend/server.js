@@ -59,7 +59,7 @@ function getActiveProviderConfig() {
   }
 
   // Default to Gemini
-  const model = (process.env.GEMINI_MODEL || 'gemini-1.5-flash').trim();
+  const model = (process.env.GEMINI_MODEL || 'gemini-3.6-flash').trim();
   return {
     provider: 'gemini',
     displayName: 'Gemini',
@@ -209,8 +209,8 @@ function validateStructuredResponse(raw, type, optionsCount) {
 // Provider 1: Gemini
 // -------------------------------------------------------------
 async function solveWithGemini(question, options, code, type, apiKey, modelName) {
-  const model = modelName || 'gemini-1.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const preferredModel = modelName || process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+  const modelsToTry = [preferredModel, 'gemini-3.5-flash-lite'].filter((m, i, a) => a.indexOf(m) === i);
 
   let prompt = '';
   if (type === 'mcq') {
@@ -266,32 +266,54 @@ Requirements:
     }
   };
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  let lastError = null;
+  for (const model of modelsToTry) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000)
+      });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini API HTTP ${response.status}: ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        // If 404, 503, or rate limit, try next model
+        if (model !== modelsToTry[modelsToTry.length - 1]) {
+          console.warn(`[Backend Gemini] Model ${model} returned HTTP ${response.status}. Trying next model...`);
+          lastError = new Error(`Gemini API HTTP ${response.status}: ${errText}`);
+          continue;
+        }
+        throw new Error(`Gemini API HTTP ${response.status}: ${errText}`);
+      }
+
+      const result = await response.json();
+      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) {
+        throw new Error('Gemini response missing candidate text');
+      }
+
+      let cleaned = rawText.trim();
+      if (cleaned.startsWith('```json')) {
+        cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+      } else if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```\s*/i, '').replace(/```\s*$/, '').trim();
+      }
+
+      const parsed = JSON.parse(cleaned);
+      return validateStructuredResponse(parsed, type, options?.length || 0);
+    } catch (err) {
+      lastError = err;
+      if (model !== modelsToTry[modelsToTry.length - 1]) {
+        console.warn(`[Backend Gemini] Model ${model} error: ${err.message}. Trying next model...`);
+        continue;
+      }
+      throw err;
+    }
   }
 
-  const result = await response.json();
-  const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!rawText) {
-    throw new Error('Gemini response missing candidate text');
-  }
-
-  let cleaned = rawText.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```\s*/i, '').replace(/```\s*$/, '').trim();
-  }
-
-  const parsed = JSON.parse(cleaned);
-  return validateStructuredResponse(parsed, type, options?.length || 0);
+  throw lastError || new Error('All Gemini candidate models failed');
 }
 
 // -------------------------------------------------------------
@@ -422,6 +444,18 @@ app.post('/solve', async (req, res) => {
       } catch (providerError) {
         // Log category and provider, NEVER expose API key
         console.error(`[Backend /solve] Provider Error [${activeConfig.displayName}]: ${providerError.message}`);
+        
+        // If AI provider is unavailable, fallback to deterministic mock solver so workflow can still be validated
+        const mockFallback = findMockKnowledgeAnswer(question, options, type, code);
+        if (mockFallback) {
+          console.log(`[Backend /solve] Falling back to deterministic mock knowledge base answer.`);
+          return res.json({
+            ...mockFallback,
+            fallbackUsed: true,
+            providerNotice: `${activeConfig.displayName} temporarily unavailable, deterministic mock fallback used.`
+          });
+        }
+
         return res.status(502).json({
           error: `${activeConfig.displayName} provider error: ${providerError.message}`,
           provider: activeConfig.provider,

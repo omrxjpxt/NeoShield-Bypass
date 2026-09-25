@@ -696,10 +696,12 @@ function removeInjectedElement() {
   });
 
   // Inject the monitoring HUD once DOM is ready
-  if (document.readyState === 'loading') {
+  if (document.body) {
+    injectHUD();
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', injectHUD);
   } else {
-    injectHUD();
+    window.addEventListener('load', injectHUD);
   }
 
 })();
