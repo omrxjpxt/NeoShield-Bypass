@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoPass Local Mock Test Environment</title>
+  <link rel="stylesheet" href="mock-test.css">
+</head>
+<body data-mock-test-environment="true">
+
+  <header>
+    <div class="brand">
+      <h1>MockExam Portal</h1>
+      <span class="badge">LOCAL TEST</span>
+    </div>
+    <div class="mock-environment-notice">
+      🧪 Isolated Development & Testing Sandbox (Non-Production)
+    </div>
+  </header>
+
+  <main class="main-container" id="mock-test-container">
+
+    <!-- Progress Card -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="progress-title">Test Progress</span>
+        <span id="mock-progress-badge">0/6</span>
+      </div>
+      <div class="progress-track">
+        <div id="mock-progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Active Question Card -->
+    <div class="question-card" id="mock-question-card">
+      <div class="question-meta">
+        <span id="mock-question-counter">Question 1 of 6</span>
+        <span id="mock-question-type">MCQ</span>
+      </div>
+
+      <div id="mock-question-text">
+        Loading question...
+      </div>
+
+      <div id="mock-question-code-block" class="hidden">
+        <pre><code id="mock-question-code"></code></pre>
+      </div>
+
+      <!-- MCQ Options Container -->
+      <div id="mock-options-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Text / Coding Answer Input -->
+      <div id="mock-text-container" class="hidden">
+        <label for="mock-text-answer" style="display:block; margin-bottom:8px; font-weight:600; font-size:0.9rem;">
+          Your Code / Solution:
+        </label>
+        <textarea id="mock-text-answer" placeholder="// Write your solution here..."></textarea>
+      </div>
+
+      <!-- Grader Result / Status Area -->
+      <div id="mock-grade-result" class="result-idle" data-verdict="idle">
+        Awaiting submission...
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-row">
+        <button type="button" class="btn btn-secondary" id="mock-reset-btn">
+          Restart Test
+        </button>
+
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn btn-primary" id="mock-submit-btn">
+            Submit Answer
+          </button>
+          <button type="button" class="btn btn-secondary" id="mock-next-btn" disabled>
+            Next Question &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Card -->
+    <div class="question-card hidden" id="mock-completion-card">
+      <h2>🎉 Test Completed!</h2>
+      <p id="mock-final-score-text">All questions evaluated successfully.</p>
+      <div id="mock-completion-summary" style="margin-bottom: 24px; font-size: 1.1rem; color: #f0f6fc;">
+        Score: 6/6 (100%)
+      </div>
+      <button type="button" class="btn btn-primary" id="mock-restart-btn">
+        Take Test Again
+      </button>
+    </div>
+
+  </main>
+
+  <script src="mock-test.js"></script>
+</body>
+</html>

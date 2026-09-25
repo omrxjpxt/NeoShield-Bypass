@@ -1,0 +1,352 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #0d1117;
+  color: #c9d1d9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #58a6ff;
+  letter-spacing: -0.5px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  background-color: #238636;
+  color: #ffffff;
+}
+
+.mock-environment-notice {
+  font-size: 0.85rem;
+  color: #8b949e;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.main-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 32px auto;
+  padding: 0 20px;
+  flex: 1;
+}
+
+/* Progress bar header */
+.progress-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progress-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #f0f6fc;
+}
+
+#mock-progress-badge {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background-color: #21262d;
+  border: 1px solid #30363d;
+  color: #58a6ff;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #21262d;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#mock-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1f6feb, #238636);
+  transition: width 0.4s ease;
+}
+
+/* Question card */
+.question-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.question-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+#mock-question-counter {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#mock-question-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background-color: #1f6feb;
+  color: #ffffff;
+}
+
+#mock-question-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #f0f6fc;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Code block */
+#mock-question-code-block {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+#mock-question-code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.95rem;
+  color: #79c0ff;
+  white-space: pre-wrap;
+}
+
+/* Options */
+#mock-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.mock-option {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  background-color: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mock-option:hover {
+  border-color: #58a6ff;
+  background-color: #262c36;
+}
+
+.mock-option input[type="radio"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #8b949e;
+  border-radius: 50%;
+  margin-right: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.mock-option input[type="radio"]:checked {
+  border-color: #58a6ff;
+  background-color: #58a6ff;
+}
+
+.mock-option.selected {
+  border-color: #58a6ff;
+  background-color: rgba(88, 166, 255, 0.1);
+}
+
+.mock-option-label {
+  font-size: 1rem;
+  color: #c9d1d9;
+  cursor: pointer;
+  flex: 1;
+}
+
+/* Text / Code answer input */
+#mock-text-container {
+  margin-bottom: 24px;
+}
+
+#mock-text-answer {
+  width: 100%;
+  min-height: 140px;
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #f0f6fc;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.95rem;
+  padding: 14px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+#mock-text-answer:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+}
+
+/* Grader Result Area */
+#mock-grade-result {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.result-idle {
+  background-color: #21262d;
+  border: 1px dashed #30363d;
+  color: #8b949e;
+}
+
+.result-grading {
+  background-color: rgba(210, 153, 34, 0.1);
+  border: 1px solid #d29922;
+  color: #f0883e;
+}
+
+.result-correct {
+  background-color: rgba(35, 134, 54, 0.15);
+  border: 1px solid #238636;
+  color: #3fb950;
+}
+
+.result-incorrect {
+  background-color: rgba(248, 81, 73, 0.15);
+  border: 1px solid #f85149;
+  color: #f85149;
+}
+
+/* Action buttons */
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn {
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: #238636;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2ea043;
+}
+
+.btn-secondary {
+  background-color: #21262d;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #30363d;
+  color: #f0f6fc;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Completion Card */
+#mock-completion-card {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+#mock-completion-card h2 {
+  font-size: 1.8rem;
+  color: #3fb950;
+  margin-bottom: 12px;
+}
+
+#mock-completion-card p {
+  color: #8b949e;
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+}
+
+.hidden {
+  display: none !important;
+}
