@@ -745,7 +745,11 @@ async function fetchAccountInfo() {
                     mockStatusInfo.className = 'toggle-warning';
                 }
             } else {
-                const aiState = response.data?.aiConfigured ? '⚡ Gemini AI Active' : '🤖 Deterministic Mock Mode';
+                const provider = response.data?.provider;
+                const isConfigured = response.data?.configured;
+                const aiState = isConfigured
+                    ? `⚡ ${provider.toUpperCase()} (${response.data?.model || 'Active'})`
+                    : '🤖 Deterministic Mock Mode';
                 if (mockStatusInfo) {
                     mockStatusInfo.innerHTML = `🟢 Backend Online | ${aiState}`;
                     mockStatusInfo.className = 'toggle-success';

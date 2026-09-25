@@ -23,10 +23,10 @@ This module provides an isolated, local development sandbox and backend AI servi
                          ▼  (HTTP POST JSON)
 [ backend/server.js: /solve ]
  - Validates input structure (question, options, type)
- - If GEMINI_API_KEY is present:
-     Queries Google Gemini (gemini-1.5-flash) with structured JSON schema
- - If GEMINI_API_KEY is not set or offline:
-     Evaluates using deterministic mock test knowledge base
+ - Selects provider based on AI_PROVIDER (gemini | groq)
+ - If GEMINI: Calls solveWithGemini() using GEMINI_API_KEY
+ - If GROQ: Calls solveWithGroq() using GROQ_API_KEY via groq-sdk
+ - If no API key configured: Uses deterministic mock test knowledge base
  - Returns validated JSON: { answerIndex, confidence, explanation } (or { answer, ... })
                          │
                          ▼
@@ -64,28 +64,52 @@ cd backend
 npm install
 ```
 
-### 3. (Optional) Configure Gemini API Key
-To use live Google Gemini AI, copy `.env.example` to `.env` and add your key:
+### 3. Configure AI Provider (.env)
+Create your `.env` from `.env.example`:
 ```bash
 cp .env.example .env
 ```
+
+You can choose either **Gemini** or **Groq**:
+
+#### Option A: Use Google Gemini
 Edit `.env`:
 ```ini
 PORT=3000
+AI_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_api_key_here
+GROQ_API_KEY=
 ```
-> **Note**: If `GEMINI_API_KEY` is not provided, the backend automatically uses an intelligent deterministic local solver so all 6 mock test questions can be tested and verified out-of-the-box!
+*(Optional model override: `GEMINI_MODEL=gemini-1.5-flash`)*
+
+#### Option B: Use Groq
+Edit `.env`:
+```ini
+PORT=3000
+AI_PROVIDER=groq
+GEMINI_API_KEY=
+GROQ_API_KEY=your_groq_api_key_here
+```
+*(Optional model override: `GROQ_MODEL=llama-3.3-70b-versatile`)*
+
+> [!IMPORTANT]
+> **Server Restart Required**: The backend must be restarted whenever you change values in `.env`.
+
+> [!NOTE]
+> **Deterministic Mock Solver**: If no API key is provided for the selected provider, the backend automatically runs in **Deterministic Mock Solver Mode**, resolving all 6 mock test questions with 100% accuracy for out-of-the-box local testing.
 
 ### 4. Start Backend Server
 ```bash
 npm start
 ```
-The server will output:
+On startup, diagnostics will display:
 ```
 =======================================================
 🚀 NeoPass Mock Test Backend running on http://localhost:3000
 📝 Mock Test Portal: http://localhost:3000/mock-test
-🤖 AI Status: Mock Deterministic Solver Mode (or Gemini API Key Detected)
+🤖 AI Provider: Gemini (or Groq / Deterministic Mock Solver)
+🔑 API Key: Configured
+📦 Model: gemini-1.5-flash (or llama-3.3-70b-versatile)
 =======================================================
 ```
 
@@ -122,6 +146,6 @@ The server will output:
 
 ## 🔒 Security & Safety Controls
 - **Strict Isolation**: The ⌘G shortcut and automation listeners activate **only** on the local mock test page (`localhost:3000/mock-test` or DOM attribute `data-mock-test-environment="true"`).
-- **Backend Key Isolation**: The `GEMINI_API_KEY` stays exclusively on the local backend and is never sent to content scripts or logged.
+- **Backend Key Isolation**: API keys stay strictly on the local backend (`.env`) and are never sent to content scripts or logged in the console.
 - **CORS Restricted**: Backend CORS permits only localhost origins and `chrome-extension://*`.
 - **Zero Bypass Code**: No exam proctoring, lockdown, or security evasion code is involved.
