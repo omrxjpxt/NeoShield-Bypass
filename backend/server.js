@@ -461,7 +461,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   const activeConfig = getActiveProviderConfig();
   console.log(`=======================================================`);
   console.log(`🚀 NeoPass Mock Test Backend running on http://localhost:${PORT}`);
@@ -475,4 +475,16 @@ app.listen(PORT, () => {
     console.log(`🔑 API Key: Not Configured (using built-in deterministic solver)`);
   }
   console.log(`=======================================================`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n❌ Error: Port ${PORT} is already in use by another process.`);
+    console.error(`To stop the process using port ${PORT}, run:`);
+    console.error(`   lsof -ti :${PORT} | xargs kill -9\n`);
+    process.exit(1);
+  } else {
+    console.error('Server error:', err);
+    process.exit(1);
+  }
 });
