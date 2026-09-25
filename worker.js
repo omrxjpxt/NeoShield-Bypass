@@ -3,8 +3,7 @@ const shortcutStates = {
   'search': false,
   'search-mcq': false,
   'nptel': false,
-  'customPaste': false,
-  'mock-test-solve': false
+  'customPaste': false
 };
 
 // Request blocking mechanism to prevent multiple simultaneous API requests
@@ -876,17 +875,6 @@ chrome.commands.onCommand.addListener((command, tab) => {
                 }
                 shortcutStates[command] = false; // Reset the state after processing
             });
-        }
-
-        if (command === 'mock-test-solve') {
-            if (tab && tab.id) {
-                chrome.tabs.sendMessage(tab.id, { action: 'triggerMockTestSolve' }, (response) => {
-                    chrome.runtime.lastError; // silence errors if not on mock page
-                    shortcutStates[command] = false;
-                });
-            } else {
-                shortcutStates[command] = false;
-            }
         }
 });
 

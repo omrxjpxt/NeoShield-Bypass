@@ -155,13 +155,6 @@
         "mac": "Alt+P"
       },
       "description": "Paste using drag-and-drop when blocked"
-    },
-    "mock-test-solve": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+G",
-        "mac": "Command+Shift+G"
-      },
-      "description": "Auto-solve mock test"
     }
   },
   "icons": {
