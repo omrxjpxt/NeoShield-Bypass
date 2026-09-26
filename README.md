@@ -98,7 +98,7 @@ https://github.com/user-attachments/assets/eefb46a6-c7d1-4b65-b12b-a0aa674b02d0
 - <kbd>Alt</kbd> + <kbd>P</kbd> : Paste using drag and drop when blocked
 - <kbd>Ctrl</kbd> + <kbd>V</kbd> : Paste content when blocked
 - <kbd>Alt</kbd> + <kbd>C</kbd> : Open/Close Chatbot
-- <kbd>Ctrl</kbd> + <kbd>G</kbd> : Auto-solve Local Mock Test (on `http://localhost:3000/mock-test` only)
+- <kbd>Ctrl</kbd> + <kbd>G</kbd> : Analyze and fill the current local practice question (on `http://localhost:3000/mock-test` only; Submit remains manual)
 
 <details>
 <summary><strong>Mac Users (Click to expand)</strong></summary>
@@ -116,16 +116,16 @@ https://github.com/user-attachments/assets/eefb46a6-c7d1-4b65-b12b-a0aa674b02d0
 - <kbd>Option</kbd> + <kbd>P</kbd> : Paste using drag and drop when blocked
 - <kbd>Cmd</kbd> + <kbd>V</kbd> : Paste content when blocked
 - <kbd>Option</kbd> + <kbd>C</kbd> : Open/Close Chatbot
-- <kbd>Cmd</kbd> + <kbd>G</kbd> : Auto-solve Local Mock Test (on `http://localhost:3000/mock-test` only)
+- <kbd>Cmd</kbd> + <kbd>G</kbd> : Analyze and fill the current local practice question (on `http://localhost:3000/mock-test` only; Submit remains manual)
 
 </details>
 
 ## 🧪 Local Mock Test Automation Sandbox
 
-A local development test environment is included in `backend/` for testing the autonomous AI-assisted solver workflow:
+A local development practice environment is included in `backend/` for testing the AI-assisted question workflow:
 1. Start local backend: `cd backend && npm install && npm start`
 2. Open Mock Test Portal: `http://localhost:3000/mock-test`
-3. Press `⌘G` (Mac) or `Ctrl+G` (Windows/Linux) to run the end-to-end question detection, AI solving, auto-filling, grading, and advancement pipeline.
+3. Press `⌘G` (Mac) or `Ctrl+G` (Windows/Linux) to detect the current practice question and fill a suggested answer. Review it and press Submit yourself; accepted practice answers advance automatically.
 See [`backend/README.md`](backend/README.md) for complete architecture and details.
 
 ## 🤝 Contribute or Add NPTEL Dataset

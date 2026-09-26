@@ -86,12 +86,18 @@
       ],
       "exclude_matches": [
         "*://*.discord.com/*",
-        "*://*.figma.com/*"
+        "*://*.figma.com/*",
+        "*://chromewebstore.google.com/*",
+        "*://chrome.google.com/*"
       ]
     },
     {
       "matches": [
         "<all_urls>"
+      ],
+      "exclude_matches": [
+        "*://chromewebstore.google.com/*",
+        "*://chrome.google.com/*"
       ],
       "all_frames": true,
       "run_at": "document_start",
@@ -109,6 +115,10 @@
       "world": "MAIN",
       "matches": [
         "<all_urls>"
+      ],
+      "exclude_matches": [
+        "*://chromewebstore.google.com/*",
+        "*://chrome.google.com/*"
       ]
     },
     {
@@ -126,7 +136,9 @@
       ],
       "exclude_matches": [
         "https://*.examly.io/result*",
-        "https://*.vit.ac.in/result"
+        "https://*.vit.ac.in/result",
+        "*://chromewebstore.google.com/*",
+        "*://chrome.google.com/*"
       ]
     },
     {
@@ -145,7 +157,9 @@
       ],
       "exclude_matches": [
         "https://*.examly.io/result*",
-        "https://*.vit.ac.in/result"
+        "https://*.vit.ac.in/result",
+        "*://chromewebstore.google.com/*",
+        "*://chrome.google.com/*"
       ]
     }
   ],

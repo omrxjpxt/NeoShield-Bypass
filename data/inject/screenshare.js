@@ -11,10 +11,8 @@ const windowEvents = [
     "focus", 
     "beforeunload", 
     "pagehide", 
-    "unload", 
     "popstate", 
     "resize", 
-    "pagehide", 
     'lostpointercapture', 
     "fullscreenchange", 
     "visibilitychange"
@@ -49,21 +47,38 @@ function bypassRestrictions() {
     };
     
     // Add our handler with highest priority (capture phase)
-    window.addEventListener('beforeunload', blockBeforeUnload, true);
+    try {
+        window.addEventListener('beforeunload', blockBeforeUnload, true);
+    } catch (e) {}
     
-    // Override addEventListener to block beforeunload handlers
+    // Override addEventListener to block beforeunload and unload handlers
     const originalAddEventListener = EventTarget.prototype.addEventListener;
     EventTarget.prototype.addEventListener = function(type, listener, options) {
-        if (type === 'beforeunload') {
-            return; // Completely ignore beforeunload listeners
+        if (type === 'beforeunload' || type === 'unload') {
+            return; // Completely ignore beforeunload and unload listeners to prevent permissions policy violations
         }
-        return originalAddEventListener.call(this, type, listener, options);
+        try {
+            return originalAddEventListener.call(this, type, listener, options);
+        } catch (e) {
+            // Silently ignore permissions policy violations for disallowed event types
+            return;
+        }
     };
     
-    // Override onbeforeunload property setter
+    // Override onbeforeunload and onunload property setters
     Object.defineProperty(window, 'onbeforeunload', {
         set: function(val) {
             // Silently ignore attempts to set onbeforeunload
+        },
+        get: function() {
+            return null;
+        },
+        configurable: false
+    });
+
+    Object.defineProperty(window, 'onunload', {
+        set: function(val) {
+            // Silently ignore attempts to set onunload
         },
         get: function() {
             return null;
@@ -75,13 +90,17 @@ function bypassRestrictions() {
     windowEvents.forEach(eventName => {
         // Skip unload and beforeunload events
         if (eventName !== 'unload' && eventName !== 'beforeunload') {
-            window.addEventListener(eventName, eventHandler, true);
+            try {
+                window.addEventListener(eventName, eventHandler, true);
+            } catch (e) {}
         }
     });
 
     // Prevent document events from firing
     documentEvents.forEach(eventName => {
-        document.addEventListener(eventName, eventHandler, true);
+        try {
+            document.addEventListener(eventName, eventHandler, true);
+        } catch (e) {}
     });
 
     // Override visibility state properties

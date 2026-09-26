@@ -15,7 +15,9 @@ const allowedOrigins = [
   `http://localhost:${PORT}`,
   `http://127.0.0.1:${PORT}`,
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'https://piet576.examly.io',
+  'https://piet576.examly.io/'
 ];
 
 app.use(cors({

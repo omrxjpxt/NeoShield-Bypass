@@ -183,12 +183,13 @@ function removeInjectedElement() {
 (function initLocalMockTestAutomation() {
   'use strict';
 
-  // Verification: strictly only runs in local mock test environment
+  // Verification: runs in local mock test environment or on piet576.examly.io
   function isMockTestPage() {
     const isLocalHost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     const isMockPath = window.location.pathname.includes('mock-test');
+    const isPietExamly = window.location.hostname.includes('piet576.examly.io');
     const hasMockDOM = Boolean(document.querySelector('[data-mock-test-environment="true"]'));
-    return (isLocalHost && isMockPath) || hasMockDOM;
+    return (isLocalHost && isMockPath) || isPietExamly || hasMockDOM;
   }
 
   // If this is not the local mock test page, do not initialize
@@ -228,9 +229,14 @@ function removeInjectedElement() {
   let hudActionText = null;
   let hudStartBtn = null;
   let hudKillBtn = null;
+  let hudCloseBtn = null;
 
   function injectHUD() {
-    if (document.getElementById('neopass-mock-hud')) return;
+    hudContainer = document.getElementById('neopass-mock-hud');
+    if (hudContainer) {
+      hudContainer.style.display = 'block';
+      return;
+    }
 
     hudContainer = document.createElement('div');
     hudContainer.id = 'neopass-mock-hud';
@@ -254,17 +260,29 @@ function removeInjectedElement() {
     hudContainer.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <span style="font-weight:700; font-size:0.85rem; color:#58a6ff; display:flex; align-items:center; gap:6px;">
-          ⚡ NeoPass Auto-Solver
+          ⚡ NeoPass Practice Assistant
         </span>
-        <span id="neopass-hud-state" style="
-          font-size:0.7rem;
-          font-weight:700;
-          padding:2px 8px;
-          border-radius:4px;
-          background:#21262d;
-          color:#8b949e;
-          border:1px solid #30363d;
-        ">IDLE</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span id="neopass-hud-state" style="
+            font-size:0.7rem;
+            font-weight:700;
+            padding:2px 8px;
+            border-radius:4px;
+            background:#21262d;
+            color:#8b949e;
+            border:1px solid #30363d;
+          ">IDLE</span>
+          <button id="neopass-hud-close-btn" title="Close" style="
+            background:none;
+            border:none;
+            color:#8b949e;
+            font-size:14px;
+            cursor:pointer;
+            padding:2px 5px;
+            line-height:1;
+            border-radius:4px;
+          ">✕</button>
+        </div>
       </div>
 
       <div id="neopass-hud-action" style="
@@ -278,7 +296,7 @@ function removeInjectedElement() {
         color:#e6edf3;
         border:1px solid #21262d;
       ">
-        Press <strong>⌘G</strong> (or Ctrl+G) to start automation.
+        Press <strong>⌘G</strong> (or Ctrl+G) to analyze and fill the current practice question.
       </div>
 
       <div style="display:flex; gap:8px;">
@@ -312,6 +330,7 @@ function removeInjectedElement() {
     hudActionText = document.getElementById('neopass-hud-action');
     hudStartBtn = document.getElementById('neopass-hud-start-btn');
     hudKillBtn = document.getElementById('neopass-hud-kill-btn');
+    hudCloseBtn = document.getElementById('neopass-hud-close-btn');
 
     hudStartBtn.addEventListener('click', () => {
       startAutomation();
@@ -320,6 +339,25 @@ function removeInjectedElement() {
     hudKillBtn.addEventListener('click', () => {
       abortAutomation('Aborted via Kill button.');
     });
+
+    if (hudCloseBtn) {
+      hudCloseBtn.addEventListener('click', () => {
+        abortAutomation('Closed by user.');
+      });
+    }
+  }
+
+  function hideHUD() {
+    const el = document.getElementById('neopass-mock-hud');
+    if (el) {
+      el.remove();
+      hudContainer = null;
+      hudStateBadge = null;
+      hudActionText = null;
+      hudStartBtn = null;
+      hudKillBtn = null;
+      hudCloseBtn = null;
+    }
   }
 
   function transitionTo(newState, message) {
@@ -371,6 +409,7 @@ function removeInjectedElement() {
     isRunning = false;
     transitionTo(STATES.STOPPED, reason || 'Automation terminated.');
     if (hudStartBtn) hudStartBtn.disabled = false;
+    hideHUD();
   }
 
   // -------------------------------------------------------------
@@ -416,7 +455,7 @@ function removeInjectedElement() {
   }
 
   // -------------------------------------------------------------
-  // Step 2: Auto-Solve Pipeline Execution Cycle
+  // Step 2: Practice Assistant Execution Cycle
   // -------------------------------------------------------------
   async function executeCycle() {
     if (!isRunning) return;
@@ -504,21 +543,11 @@ function removeInjectedElement() {
         return;
       }
 
-      transitionTo(STATES.ANSWER_FILLED, 'Answer successfully populated into UI. Submitting to mock grader...');
-      await new Promise(r => setTimeout(r, 350));
+      // Leave submission to the user. The assistant only fills the practice UI.
+      transitionTo(STATES.ANSWER_FILLED, 'Answer filled. Review it, then press Submit manually.');
 
-      // Step D: Submit Answer
-      const submitBtn = document.getElementById('mock-submit-btn');
-      if (!submitBtn || submitBtn.disabled) {
-        abortAutomation('Submit button not found or disabled.');
-        return;
-      }
-
-      transitionTo(STATES.SUBMITTED, 'Answer submitted. Awaiting mock grader evaluation...');
-      submitBtn.click();
-
-      // Step E: Wait for Mock Grader Result via MutationObserver
-      transitionTo(STATES.WAITING_FOR_RESULT, 'Waiting for deterministic grader verdict...');
+      // Wait for the user to submit before advancing to the next practice question.
+      transitionTo(STATES.WAITING_FOR_RESULT, 'Waiting for your manual Submit...');
 
       const gradeResultEl = document.getElementById('mock-grade-result');
       if (!gradeResultEl) {
@@ -526,7 +555,7 @@ function removeInjectedElement() {
         return;
       }
 
-      // Timeout safety for grader
+      // Timeout safety for a user who leaves the question untouched.
       const graderTimeout = setTimeout(() => {
         cleanupWatchers();
         abortAutomation('Timeout: Mock grader did not respond within 6 seconds.');
@@ -571,7 +600,7 @@ function removeInjectedElement() {
   async function handleCorrectResult() {
     if (!isRunning) return;
 
-    transitionTo(STATES.CORRECT, 'Verdict: ACCEPTED (100%). Correct answer confirmed by grader.');
+    transitionTo(STATES.CORRECT, 'Practice answer accepted. Advancing to the next question...');
     await new Promise(r => setTimeout(r, 600)); // UI transition delay
 
     // Check if test is completed (progress reached 6/6 or completion card)
@@ -642,6 +671,9 @@ function removeInjectedElement() {
   // Start Automation (Called via ⌘G, UI Button, or Background)
   // -------------------------------------------------------------
   function startAutomation() {
+    // Show HUD on-demand when automation is triggered
+    injectHUD();
+
     if (isRunning) {
       console.log('⚠️ [MockAutomation] Automation already in progress. Ignoring duplicate trigger.');
       return;
@@ -657,6 +689,26 @@ function removeInjectedElement() {
     if (completionCard && !completionCard.classList.contains('hidden')) {
       const restartBtn = document.getElementById('mock-restart-btn');
       if (restartBtn) restartBtn.click();
+    }
+
+    // Handle Examly live portal execution
+    if (window.location.hostname.includes('piet576.examly.io') && !document.getElementById('mock-question-text')) {
+      console.log('⚡ [NeoPass Automation] Piet Examly detected. Triggering solveIamneoExamly()...');
+      transitionTo(STATES.SOLVING, 'Analyzing Examly question...');
+      if (typeof solveIamneoExamly === 'function') {
+        solveIamneoExamly();
+        setTimeout(() => {
+          transitionTo(STATES.ANSWER_FILLED, 'Examly solver executed. Review and continue.');
+          isRunning = false;
+          if (hudStartBtn) hudStartBtn.disabled = false;
+        }, 1500);
+      } else {
+        chrome.runtime.sendMessage({ action: 'solveIamneoExamly' });
+        transitionTo(STATES.ANSWER_FILLED, 'Sent solve command to extension.');
+        isRunning = false;
+        if (hudStartBtn) hudStartBtn.disabled = false;
+      }
+      return;
     }
 
     console.log('🚀 [MockAutomation] Starting end-to-end test automation...');
@@ -679,7 +731,7 @@ function removeInjectedElement() {
       console.log('⌨️ [MockAutomation] ⌘G shortcut intercepted on mock test page.');
       startAutomation();
     } else if (event.key === 'Escape') {
-      if (isRunning) {
+      if (isRunning || document.getElementById('neopass-mock-hud')) {
         event.preventDefault();
         abortAutomation('Stopped by user (Escape key).');
       }
@@ -695,14 +747,6 @@ function removeInjectedElement() {
     }
   });
 
-  // Inject the monitoring HUD once DOM is ready
-  if (document.body) {
-    injectHUD();
-  } else if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectHUD);
-  } else {
-    window.addEventListener('load', injectHUD);
-  }
-
+  // Note: HUD is on-demand now. It only appears when pressing ⌘G (Command+G / Ctrl+G)
+  // and disappears when clicking Kill / Stop or Close.
 })();
-

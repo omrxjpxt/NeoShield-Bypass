@@ -727,7 +727,7 @@ async function fetchAccountInfo() {
 
     async function checkMockBackendHealth() {
         const saved = await chrome.storage.local.get(['mockBackendUrl']);
-        const url = saved.mockBackendUrl || 'http://localhost:3000';
+        const url = saved.mockBackendUrl || 'https://piet576.examly.io/';
         if (mockBackendUrlInput) mockBackendUrlInput.value = url;
 
         if (mockStatusInfo) {
@@ -760,7 +760,7 @@ async function fetchAccountInfo() {
 
     if (saveMockBackendUrlBtn && mockBackendUrlInput) {
         saveMockBackendUrlBtn.addEventListener('click', async () => {
-            const newUrl = mockBackendUrlInput.value.trim() || 'http://localhost:3000';
+            const newUrl = mockBackendUrlInput.value.trim() || 'https://piet576.examly.io/';
             await chrome.storage.local.set({ mockBackendUrl: newUrl });
             checkMockBackendHealth();
         });
@@ -769,8 +769,9 @@ async function fetchAccountInfo() {
     if (openMockTestBtn) {
         openMockTestBtn.addEventListener('click', async () => {
             const saved = await chrome.storage.local.get(['mockBackendUrl']);
-            const base = (saved.mockBackendUrl || 'http://localhost:3000').replace(/\/$/, '');
-            chrome.tabs.create({ url: `${base}/mock-test` });
+            const base = (saved.mockBackendUrl || 'https://piet576.examly.io/').replace(/\/$/, '');
+            const targetUrl = base.includes('examly.io') ? `${base}/` : `${base}/mock-test`;
+            chrome.tabs.create({ url: targetUrl });
         });
     }
 

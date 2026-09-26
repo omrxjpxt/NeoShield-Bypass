@@ -1,6 +1,6 @@
-# NeoPass Local Mock Test Automation Backend & Sandbox
+# NeoPass Local Mock Test Practice Backend & Sandbox
 
-This module provides an isolated, local development sandbox and backend AI service for testing the NeoPass browser extension automation workflow end-to-end.
+This module provides an isolated, local development sandbox and backend AI service for testing the NeoPass browser extension practice workflow end-to-end.
 
 ---
 
@@ -34,8 +34,7 @@ This module provides an isolated, local development sandbox and backend AI servi
  - Validates received structured answer
  - Updates HUD State -> ANSWER_RECEIVED -> ANSWER_FILLED
  - Populates DOM radio input / textarea & dispatches change events
- - Updates HUD State -> SUBMITTED
- - Clicks #mock-submit-btn
+ - Leaves submission to the user after displaying the suggested answer
                          │
                          ▼
 [ mock-test.js: Deterministic Grader ]
@@ -44,7 +43,7 @@ This module provides an isolated, local development sandbox and backend AI servi
                          │
                          ▼
 [ contentScript.js: MutationObserver ]
- - Reads grader verdict:
+ - Reads the verdict after the user submits:
    • If CORRECT: Updates progress badge, waits 600ms, clicks Next Question, repeats cycle.
    • If INCORRECT: Halts immediately, displays failure state.
    • If 6/6 Completed: Displays completion state.
@@ -131,10 +130,10 @@ On startup, diagnostics will display:
 1. Make sure the backend server is running (`http://localhost:3000`).
 2. Open the mock test portal:
    👉 **`http://localhost:3000/mock-test`**
-3. Notice the **NeoPass Auto-Solver** floating HUD overlay in the top-right corner.
+3. Notice the **NeoPass Practice Assistant** floating HUD overlay in the top-right corner.
 4. Press **`⌘G`** on macOS (or **`Ctrl+G`** on Windows/Linux) or click **Run (⌘G)** in the floating HUD.
-5. Watch the state machine progress autonomously through all 6 questions:
-   - `QUESTION_DETECTED` → `SOLVING` → `ANSWER_RECEIVED` → `ANSWER_FILLED` → `SUBMITTED` → `WAITING_FOR_RESULT` → `CORRECT` → `NEXT_QUESTION` → Repeat until `COMPLETED` (Score: 6/6).
+5. Review the suggested answer and press the page's **Submit** button yourself. After a correct result, the assistant advances to the next practice question:
+   - `QUESTION_DETECTED` → `SOLVING` → `ANSWER_RECEIVED` → `ANSWER_FILLED` → `WAITING_FOR_RESULT` → `CORRECT` → `NEXT_QUESTION` → Repeat until `COMPLETED` (Score: 6/6).
 
 ---
 

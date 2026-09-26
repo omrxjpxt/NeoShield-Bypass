@@ -63,7 +63,7 @@ const fetchDomainIp = async (url) => {
         let hostname = new URL(url).hostname;
 
         // Special case for specific domain
-        if (hostname.includes("pscollege841.examly")) {
+        if (hostname.includes("pscollege841.examly") || hostname.includes("piet576.examly")) {
             return "34.171.215.232";
         }
         // Query Google DNS API
@@ -218,6 +218,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
 });
 
+// Helper to check if a URL is scriptable by chrome.scripting.executeScript
+function isScriptableUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    const restrictedPrefixes = [
+        'chrome://',
+        'chrome-extension://',
+        'chrome-search://',
+        'devtools://',
+        'edge://',
+        'brave://',
+        'about:',
+        'view-source:'
+    ];
+    if (restrictedPrefixes.some(prefix => url.startsWith(prefix))) {
+        return false;
+    }
+    if (url.includes('chromewebstore.google.com') || url.includes('chrome.google.com')) {
+        return false;
+    }
+    return true;
+}
+
 // Version checking functions
 async function checkForUpdate() {
     try {
@@ -242,12 +264,7 @@ async function checkForUpdate() {
                     active: true,
                     currentWindow: true
                 }, function(tabs) {
-                    if (tabs[0] && tabs[0].url &&
-                        !tabs[0].url.startsWith('chrome://') &&
-                        !tabs[0].url.startsWith('chrome-extension://') &&
-                        !tabs[0].url.startsWith('about:') &&
-                        !tabs[0].url.startsWith('edge://') &&
-                        !tabs[0].url.startsWith('brave://')) {
+                    if (tabs[0] && tabs[0].url && isScriptableUrl(tabs[0].url)) {
 
                         showUpdateToast(tabs[0].id,
                             `Update Available: v${latestVersion}\nSome features may not work. Please update your extension.`,
@@ -292,13 +309,7 @@ function showUpdateToast(tabId, message, latestVersion) {
         }
 
         // Verify tab is a valid target for script injection
-        if (!tab.url ||
-            tab.url.startsWith('chrome://') ||
-            tab.url.startsWith('chrome-extension://') ||
-            tab.url.startsWith('about:') ||
-            tab.url.startsWith('edge://') ||
-            tab.url.startsWith('brave://')) {
-
+        if (!tab || !isScriptableUrl(tab.url)) {
             console.log('Cannot inject script into this tab type');
             return;
         }
@@ -517,7 +528,7 @@ function showUpdateToast(tabId, message, latestVersion) {
             };
 
             // Execute the script with silent error handling
-            executeScriptPromise();
+            executeScriptPromise().catch(() => {});
 
         } catch (error) {
             // Only log truly unexpected errors
@@ -528,13 +539,8 @@ function showUpdateToast(tabId, message, latestVersion) {
 
 // Add listener for tab updates to show pending notifications
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // Only check when page is fully loaded
-    if (changeInfo.status === 'complete' && tab.url &&
-        !tab.url.startsWith('chrome://') &&
-        !tab.url.startsWith('chrome-extension://') &&
-        !tab.url.startsWith('about:') &&
-        !tab.url.startsWith('edge://') &&
-        !tab.url.startsWith('brave://')) {
+    // Only check when page is fully loaded and scriptable
+    if (changeInfo.status === 'complete' && tab.url && isScriptableUrl(tab.url)) {
 
         // Check for pending notifications
         chrome.storage.local.get(['pendingUpdateNotification', 'pendingUpdateVersion'], function(data) {
@@ -679,6 +685,7 @@ function showLoginPrompt(tabId) {
 }
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
+        if (!tab || !isScriptableUrl(tab.url)) return;
         if (info.menuItemId === 'search' && info.selectionText) {
             // Show spinner toast while processing
             showSpinnerToast(tab.id, 'Analyzing question...');
@@ -893,14 +900,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         isMockSolveInProgress = true;
-        const backendUrl = request.backendUrl || 'http://localhost:3000/solve';
 
         (async () => {
+            const saved = await chrome.storage.local.get(['mockBackendUrl']);
+            const defaultBase = (saved.mockBackendUrl || 'https://piet576.examly.io/').replace(/\/$/, '');
+            const backendUrl = request.backendUrl || (defaultBase.endsWith('/solve') ? defaultBase : `${defaultBase}/solve`);
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 12000); // 12-second safety timeout
 
             try {
-                console.log('[Worker] Forwarding mock question to local backend:', backendUrl);
+                console.log('[Worker] Forwarding mock question to backend:', backendUrl);
                 const response = await fetch(backendUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -939,7 +948,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     success: false,
                     error: err.name === 'AbortError'
                         ? 'Request timed out waiting for backend AI response (12s limit).'
-                        : (err.message || 'Failed to connect to local mock backend at http://localhost:3000')
+                        : (err.message || 'Failed to connect to backend at https://piet576.examly.io/')
                 });
             } finally {
                 clearTimeout(timeoutId);
@@ -953,9 +962,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'getMockBackendStatus') {
         (async () => {
             try {
+                const saved = await chrome.storage.local.get(['mockBackendUrl']);
+                const defaultBase = (saved.mockBackendUrl || 'https://piet576.examly.io/').replace(/\/$/, '');
                 const healthUrl = request.backendUrl
                     ? request.backendUrl.replace(/\/solve\/?$/, '/health')
-                    : 'http://localhost:3000/health';
+                    : (defaultBase.endsWith('/health') ? defaultBase : `${defaultBase}/health`);
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000);
                 const resp = await fetch(healthUrl, { signal: controller.signal });
@@ -1996,7 +2007,10 @@ function sendChatErrorResponse(tabId, content) {
 
 async function copyToClipboard(text, tabId) {
     try {
-        // Use modern Clipboard API with fallback
+        if (tabId) {
+            const tab = await chrome.tabs.get(tabId).catch(() => null);
+            if (!tab || !isScriptableUrl(tab.url)) return false;
+        }
         await chrome.scripting.executeScript({
             target: {
                 tabId: tabId
@@ -2018,7 +2032,6 @@ async function copyToClipboard(text, tabId) {
         });
         return true;
     } catch (err) {
-        console.error('Failed to copy text:', err);
         return false;
     }
 }
@@ -2028,7 +2041,7 @@ function copyToClipboard(text) {
         active: true,
         currentWindow: true
     }, function(tabs) {
-        if (tabs[0]) {
+        if (tabs[0] && isScriptableUrl(tabs[0].url)) {
             chrome.scripting.executeScript({
                 target: {
                     tabId: tabs[0].id
@@ -2047,7 +2060,7 @@ function copyToClipboard(text) {
                     }
                 },
                 args: [text]
-            });
+            }).catch(() => {});
         }
     });
 }
@@ -2074,35 +2087,41 @@ let currentOpacityLevel = "high";
 let activeToastId = null;
 
 // Function to remove any existing toast
-function removeExistingToast(tabId) {
-    chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        func: function() {
-            // Remove all possible toast types
-            const toastSelectors = [
-                '#neopass-active-toast',
-                '#stealth-mode-toast',
-                '.neopass-update-toast',
-                '[id*="toast"]',
-                '[class*="toast"]'
-            ];
-            
-            toastSelectors.forEach(selector => {
-                const existingToasts = document.querySelectorAll(selector);
-                existingToasts.forEach(toast => {
-                    if (toast && toast.parentNode) {
-                        toast.style.opacity = '0';
-                        toast.style.transform = 'translateY(10px) translateX(-50%)';
-                        setTimeout(() => {
-                            if (toast.parentNode) {
-                                toast.remove();
-                            }
-                        }, 100);
-                    }
+async function removeExistingToast(tabId) {
+    try {
+        if (!tabId) return;
+        const tab = await chrome.tabs.get(tabId).catch(() => null);
+        if (!tab || !isScriptableUrl(tab.url)) return;
+
+        await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: function() {
+                // Remove all possible toast types
+                const toastSelectors = [
+                    '#neopass-active-toast',
+                    '#stealth-mode-toast',
+                    '.neopass-update-toast',
+                    '[id*="toast"]',
+                    '[class*="toast"]'
+                ];
+                
+                toastSelectors.forEach(selector => {
+                    const existingToasts = document.querySelectorAll(selector);
+                    existingToasts.forEach(toast => {
+                        if (toast && toast.parentNode) {
+                            toast.style.opacity = '0';
+                            toast.style.transform = 'translateY(10px) translateX(-50%)';
+                            setTimeout(() => {
+                                if (toast.parentNode) {
+                                    toast.remove();
+                                }
+                            }, 100);
+                        }
+                    });
                 });
-            });
-        }
-    });
+            }
+        }).catch(() => {});
+    } catch (e) {}
 }
 
 // Function to toggle and store toast opacity level
@@ -2153,9 +2172,13 @@ async function getToastOpacity() {
 }
 
 // Show a toast with the current opacity level
-function showOpacityLevelToast(tabId, message) {
+async function showOpacityLevelToast(tabId, message) {
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     // Remove any existing toast first
-    removeExistingToast(tabId);
+    await removeExistingToast(tabId);
     
     chrome.scripting.executeScript({
         target: {
@@ -2308,11 +2331,15 @@ function showOpacityLevelToast(tabId, message) {
             }, 3000);
         },
         args: [message, opacityLevels[currentOpacityLevel]]
-    });
+    }).catch(() => {});
 }
 
 // Update existing showToast function to use the current opacity level
 async function showToast(tabId, message, isError = false, detailedInfo = '') {
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     const opacity = await getToastOpacity();
     
     // Set default detailed info if not provided
@@ -2522,11 +2549,15 @@ async function showToast(tabId, message, isError = false, detailedInfo = '') {
             }, 5000);
         },
         args: [message, isError, opacity, detailedInfo]
-    });
+    }).catch(() => {});
 }
 
 // Show stealth mode toast notification
 async function showStealthToast(tabId, message, stealthEnabled) {
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     const opacity = await getToastOpacity();
     
     // Remove any existing toast first
@@ -2651,7 +2682,7 @@ async function showStealthToast(tabId, message, stealthEnabled) {
             }, 5000);
         },
         args: [message, stealthEnabled, opacity]
-    });
+    }).catch(() => {});
 
     // Update storage with new stealth mode state
     chrome.storage.local.set({ stealth: stealthEnabled });
@@ -3046,6 +3077,10 @@ async function showMCQToast(tabId, message, detailedInfo = '') {
         detailedInfo = 'This is the answer to the MCQ question based on analysis of the question content. If you received an incorrect answer, please try rephrasing your question or providing more context.';
     }
 
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     // Remove any existing toast first
     await removeExistingToast(tabId);
 
@@ -3278,11 +3313,15 @@ async function showMCQToast(tabId, message, detailedInfo = '') {
             }, 5000);
         },
         args: [message, opacity, detailedInfo]
-    });
+    }).catch(() => {});
 }
 
 // Update showNPTELToast to use the current opacity level and include info button
 async function showNPTELToast(tabId, message, isError = false, detailedInfo = '') {
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     const opacity = await getToastOpacity();
     
     // Set default detailed info if not provided
@@ -3492,10 +3531,14 @@ async function showNPTELToast(tabId, message, isError = false, detailedInfo = ''
             }, 5000);
         },
         args: [message, isError, opacity, detailedInfo]
-    });
+    }).catch(() => {});
 }
 // Show a spinner toast while AI query is being processed
 async function showSpinnerToast(tabId, message = 'Processing your request...') {
+    if (!tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab || !isScriptableUrl(tab.url)) return;
+
     const opacity = await getToastOpacity();
     
     // Remove any existing toast first
@@ -3622,5 +3665,5 @@ async function showSpinnerToast(tabId, message = 'Processing your request...') {
             }, 10);
         },
         args: [message, opacity]
-    });
+    }).catch(() => {});
 }
