@@ -1,148 +1,131 @@
-<img width="1500" height="500" alt="NeoPass Banner" src="https://github.com/user-attachments/assets/7369dd86-838d-4fdc-abdd-6b41a9b14aed" />
+# NeoShield-Bypass (NeoPass Extension)
 
-# <i>**`Free`** NeoPass Extension</i>
+> **Cybersecurity & Ethical Hacking Internship Project**  
+> Developed as part of an ethical hacking internship at **NeoPat**. This project is a security research tool demonstrating client-side browser proctoring analysis and restriction bypass techniques.
 
-**NeoPass Pro & NeoBrowser Solver** — Upgrade to a hassle-free experience with NeoPass Pro.
+---
 
-- **`NeoPass Neo Browser Solver`** : Get exclusive access to the Neo Browser Solver: An invisible overlay with the correct option and correct code.
-- **`Managed AI by NeoPass`** : NO API key configuration needed!
-- **`Screenshare Bypass`** : Bypass full-screen restrictions (Share Tab/Window, Blank Screen, or Frozen Screen).
+## 📌 Project Overview
 
-⬇️ [**Click here to get NeoPass Pro and download the NeoPass Neo Browser Solver!**](https://neopass.tech/pro)
+**NeoShield-Bypass** is a Chromium-based browser extension (Manifest V3) created to examine how web-based exam proctoring platforms (such as **Iamneo / Examly**, **HackerRank**, and **NPTEL**) implement security controls—and how purely client-side restrictions can be neutralized.
 
-This chrome extension is for students taking tests on the **`Iamneo portal`**, **`HackerRank`**, **`Wildlife Ecology NPTEL`**, **`conservation-geography NPTEL`**, **`forest management NPTEL`** and `other exam portals in chrome browser` that restrict your abilities
+### Key Capabilities & Security Research Areas:
+- **NeoExamShield Emulation**: Impersonates the official proctoring extension via `chrome.management` and external messaging APIs to avoid third-party extension blocking.
+- **Anti-Debugging Neutralization**: Defeats dynamic `debugger` injections, `console.table` spam detectors, and DevTools timing-based detection.
+- **Browser Event Interception**: Suppresses tab-switch (`blur`, `focus`, `visibilitychange`, `beforeunload`, `pagehide`) detection.
+- **Clipboard & Paste Restoration**: Re-enables copy, cut, and paste functionality through drag-and-drop simulation and character-by-character virtual typing.
+- **AI-Powered Analysis**: Integrates OpenAI, Google Gemini, Anthropic Claude, and DeepSeek to solve coding questions and MCQs with overlay notifications and stealth chatbot interfaces.
+- **NPTEL Offline Database**: Built-in JSON question-answer dataset for quick offline lookup.
 
-### [**Make sure to visit our website for the best experience!**](https://freeneopass.vercel.app) 🌐
-
-<samp>
-  
-> [!IMPORTANT]
-> **Free Users**: No sign-up needed! Configure your own AI API key by clicking the extension icon and going to the **Settings** tab.  
-> Supported providers: OpenAI, Google Gemini, Anthropic Claude, and custom endpoints.
-> 
->
-> **Want a hassle-free experience?** Upgrade to Pro by visiting **neopass.tech/pro** for AI managed by NeoPass (GPT-5.1), increased rate limits, and NeoBrowser with built in Exam Helper access!  
-
-> [!WARNING]
-> **Educational Purposes Only**: This extension is intended for educational purposes. Please use it responsibly and ethically.
-> We are not responsible for any actions taken, and we do not encourage or promote cheating in any way.  
-> Be cautious when using the extension to maintain academic integrity.
-
-## ✨ Features
-
-### Free Version (Bring Your Own API Key)
-- **`NPTEL Integration`** : Solve NPTEL Wildlife ecology answers
-- **`NeoExamShield Bypass`** : Break free from Examly's limitations. NeoPass mimics the NeoExamShield extension
-- **`Chatbot With Stealth Mode`** : Leverage AI Chatbot to enhance your search capabilities
-- **`AI Search Answers/Code`** : Perform AI-powered searches, helping you find answers without switching tabs
-- **`Solve MCQ`** : Quickly Search MCQ Answers by simply selecting
-- **`Tab Switching Bypass`** : Prevents unwanted tab switch restrictions
-- **`Pasting When Restricted`** : Quickly paste answers with ease, reducing the time spent on manual entry
-- **`Multiple AI Providers`** : Support for OpenAI, Google Gemini, Anthropic Claude, and custom endpoints
-
-### Pro Version Features
-- **`Everything in free`** : All free features are included
-- **`Managed AI by NeoPass`** : Powered by GPT-5.1 - no API key needed!
-- **`Screenshare Bypass`** : Bypass fullscreen screenshare requirements with three modes:
-  - **Share Tab/Window** — share only the current tab or window instead of the entire screen
-  - **Share Blank Screen** — share a black screen without capturing anything real
-  - **Share Frozen Screen** — capture a single frame of your screen and freeze it
-- **`NeoBrowser Solver Access`** : Exclusive access to the [NeoBrowser with built in Exam Helper](https://neopass.tech/pro)
-- **`No Network Restrictions`** : Works even if AI providers are blocked on your network
-- **`Increased Rate Limits`** : Higher usage limits for intensive exam sessions
-- **`Priority Support`** : Get help when you need it most
-- **`Hassle-Free Experience`** : No configuration needed, just login and go!
+---
 
 ## ⬇️ Installation
 
-1. [Download](https://github.com/Max-Eee/NeoPass/archive/refs/heads/main.zip) the extension.
-2. Open Chrome and go to the Extensions page by typing `chrome://extensions/`.
-3. Enable **Developer mode** in the top right corner.
-4. Click on **Load unpacked** and select the folder where the extension is located.
-5. Your NeoPass extension is now installed!
+1. Clone or download this repository:
+   ```bash
+   git clone https://github.com/omrxjpxt/NeoShield-Bypass.git
+   ```
+   Or download the [ZIP archive](https://github.com/omrxjpxt/NeoShield-Bypass/archive/refs/heads/main.zip) and extract it.
+2. Open Google Chrome (or any Chromium browser: Brave, Edge) and navigate to:
+   ```text
+   chrome://extensions/
+   ```
+3. Enable **Developer mode** in the top-right corner.
+4. Click **Load unpacked** and select the folder containing this repository.
+5. Pin the extension to your toolbar for quick access.
 
-### Installation Guide Video
+---
 
-https://github.com/user-attachments/assets/eefb46a6-c7d1-4b65-b12b-a0aa674b02d0
+## 🔑 Where to Configure the AI API Key
 
-## 💻 Usage
+To use the AI search and MCQ solving features with your own API:
 
-### For Free Users:
-1. Click the NeoPass extension icon in your browser toolbar
-2. Navigate to the **Settings** tab
-3. Enter your AI API key (OpenAI, Google Gemini, Anthropic, or custom endpoint)
-4. Select your AI provider from the dropdown menu
-5. Click "Test Connection" to verify your setup
-6. Start using all NeoPass features with your own API!
+1. Click the **NeoShield / NeoPass** icon in the Chrome toolbar.
+2. In the popup window, switch to the **Settings** tab.
+3. Select your **AI Provider** from the dropdown:
+   - **Google Gemini** (from [Google AI Studio](https://aistudio.google.com))
+   - **OpenAI** (from [platform.openai.com](https://platform.openai.com))
+   - **Claude (Anthropic)** (from [console.anthropic.com](https://console.anthropic.com))
+   - **DeepSeek**
+   - **Custom Provider** (OpenAI-compatible custom endpoint)
+4. Paste your secret key into the **API Key** input field.
+5. *(Optional)* Enter a specific model name (e.g., `gpt-4o`, `gemini-1.5-pro`, `claude-3-5-sonnet`), or leave blank for the provider's default.
+6. Click **Test Connection** to verify your key.
+7. Your configuration **auto-saves** automatically to local browser storage (`chrome.storage.local`).
 
-> [!NOTE]
-> **Network Restrictions**: If your school/organization blocks AI service providers (OpenAI, Google, etc.), the extension will not work even with a valid API key. In this case, consider using a VPN or upgrade to Pro by visiting **neopass.tech/pro**.
+---
 
-### For Pro Users:
-1. Visit [neopass.tech/pro](https://freeneopass.vercel.app/pro) to subscribe
-2. Click the extension icon and go to the **Pro** tab
-3. Login with your Pro credentials you have created from the webstie
-4. Enjoy hassle-free AI-powered assistance with no configuration needed!
+## ⌨️ Keyboard Shortcuts Reference
 
-## ⌨️ Shortcuts
+### Windows & Linux
+| Shortcut | Action | Requirement |
+|---|---|---|
+| <kbd>Alt</kbd> + <kbd>A</kbd> | Search current Iamneo/Examly question with AI | On exam page |
+| <kbd>Alt</kbd> + <kbd>T</kbd> | Auto-types coding solution letter-by-letter into ACE Editor | On coding question |
+| <kbd>Alt</kbd> + <kbd>K</kbd> | Solve HackerRank question [BETA] | On HackerRank |
+| <kbd>Alt</kbd> + <kbd>C</kbd> | Toggle Stealth AI Chatbot overlay | Any page |
+| <kbd>Alt</kbd> + <kbd>P</kbd> | Paste using drag-and-drop simulation | In editable field |
+| <kbd>Ctrl</kbd> + <kbd>V</kbd> | Force clipboard paste | In editable field |
+| <kbd>Ctrl</kbd> + <kbd>.</kbd> | AI Answer Search from selected text | **Select text first** |
+| <kbd>Ctrl</kbd> + <kbd>,</kbd> | Solve MCQ using AI from selected text | **Select question first** |
+| <kbd>Alt</kbd> + <kbd>,</kbd> | Solve NPTEL MCQ from selected text | **Select question first** |
 
-### Windows/Linux Users:
-- <kbd>Alt</kbd> + <kbd>A</kbd> : Search Neo Answers Using AI
-- <kbd>Alt</kbd> + <kbd>T</kbd> : Autotypes Iam Neo Coding Question Solution letter by letter
-- <kbd>Alt</kbd> + <kbd>K</kbd> : Solve HackerRank Questions [BETA]
-> [!NOTE]
-> The following shortcuts **require text to be selected** before activation:  
-> - <kbd>Alt</kbd> + <kbd>Comma [,]</kbd> : Solve NPTEL MCQs from selected text
-> - <kbd>Ctrl</kbd> + <kbd>Period [.]</kbd> : Search answers and code from selected text
-> - <kbd>Ctrl</kbd> + <kbd>Comma [,]</kbd> : Search MCQs from selected text
-- <kbd>Alt</kbd> + <kbd>P</kbd> : Paste using drag and drop when blocked
-- <kbd>Ctrl</kbd> + <kbd>V</kbd> : Paste content when blocked
-- <kbd>Alt</kbd> + <kbd>C</kbd> : Open/Close Chatbot
+### macOS
+| Shortcut | Action | Requirement |
+|---|---|---|
+| <kbd>Option</kbd> + <kbd>A</kbd> | Search current Iamneo/Examly question with AI | On exam page |
+| <kbd>Option</kbd> + <kbd>T</kbd> | Auto-types coding solution letter-by-letter into ACE Editor | On coding question |
+| <kbd>Option</kbd> + <kbd>K</kbd> | Solve HackerRank question [BETA] | On HackerRank |
+| <kbd>Option</kbd> + <kbd>C</kbd> | Toggle Stealth AI Chatbot overlay | Any page |
+| <kbd>Option</kbd> + <kbd>P</kbd> | Paste using drag-and-drop simulation | In editable field |
+| <kbd>Cmd</kbd> + <kbd>V</kbd> | Force clipboard paste | In editable field |
+| <kbd>Ctrl</kbd> + <kbd>.</kbd> | AI Answer Search from selected text | **Select text first** |
+| <kbd>Ctrl</kbd> + <kbd>,</kbd> | Solve MCQ using AI from selected text | **Select question first** |
+| <kbd>Option</kbd> + <kbd>,</kbd> | Solve NPTEL MCQ from selected text | **Select question first** |
 
-<details>
-<summary><strong>Mac Users (Click to expand)</strong></summary>
+---
 
-- <kbd>Option</kbd> + <kbd>A</kbd> : Search Neo Answers Using AI
-- <kbd>Option</kbd> + <kbd>T</kbd> : Autotypes Iam Neo Coding Question Solution letter by letter
-- <kbd>Option</kbd> + <kbd>K</kbd> : Solve HackerRank Questions [BETA]
+## 🛡️ Architecture & Cybersecurity Techniques
 
-> [!NOTE]
-> The following shortcuts **require text to be selected** before activation:  
-> - <kbd>Option</kbd> + <kbd>Comma [,]</kbd> : Solve NPTEL MCQs from selected text
-> - <kbd>Control</kbd> + <kbd>Period [.]</kbd> : Search answers and code from selected text
-> - <kbd>Control</kbd> + <kbd>Comma [,]</kbd> : Search MCQs from selected text
+```text
+NeoShield-Bypass/
+├── manifest.json                  # Manifest V3 extension definition
+├── worker.js                      # Background service worker (AI proxy, context menus, hotkeys)
+├── popup.html / popup.js          # Settings & credential configuration UI
+├── devtools.js                    # Exam page detector & anti-debug bootstrap
+├── contentScript.js               # Content script entry point
+├── data/
+│   ├── inject/
+│   │   ├── anti-anti-debug.js     # Function/Proxy hooks stripping 'debugger' & DevTools traps
+│   │   ├── screenshare.js         # Event overriding (blur, visibilitychange, beforeunload)
+│   │   ├── exam.js                # Auto-typer simulating human typing in ACE Editor
+│   │   ├── chatbot.js             # Shadow DOM isolated stealth AI chatbot
+│   │   ├── customPaste.js         # Drag-drop paste & typing-paste fallback
+│   │   ├── copyOverride.js        # Event-listener overrides restoring copy/cut/paste
+│   │   └── mock_code/             # Mock NeoExamShield extension signatures
+│   └── nptel.json                 # Offline question-answer knowledge base
+```
 
-- <kbd>Option</kbd> + <kbd>P</kbd> : Paste using drag and drop when blocked
-- <kbd>Cmd</kbd> + <kbd>V</kbd> : Paste content when blocked
-- <kbd>Option</kbd> + <kbd>C</kbd> : Open/Close Chatbot
+### Ethical Hacking & Defensive Research Takeaways:
+1. **Client-Side Enforcements Are Inherently Flawed**: Any restriction enforced strictly in JavaScript running inside the student's browser can be hooked, overridden, or neutralized.
+2. **Extension Verification Limits**: Browser management APIs (`chrome.management`) can be spoofed if extension message handlers do not perform cryptographic origin validation.
+3. **Recommendation for Exam Platforms**: Robust proctoring requires server-side behavioral analysis, OS-level secure lockdown browsers, or proctored in-person environments rather than client-side web scripts.
 
-</details>
+---
 
-## 🤝 Contribute or Add NPTEL Dataset
+## 🤝 Contributing / NPTEL Dataset
 
-If you want to contribute to the NPTEL question database, follow these steps:
+1. Fork this repository: `https://github.com/omrxjpxt/NeoShield-Bypass`
+2. Extract NPTEL assignment answers using the helper script in `nptel.txt`.
+3. Append new questions to `data/nptel.json`.
+4. Submit a Pull Request.
 
-1. Fork this repository
-2. Open your NPTEL assignment page in the browser
-3. Open browser developer tools (F12 or right-click > Inspect)
-4. Go to the Console tab
-5. Copy and paste the script from `nptel.txt` in the repository
-6. Run the script by pressing Enter
-7. The script will extract all questions and correct answers from the page
-8. Copy the output JSON data
-9. Update the `data/nptel.json` file with the new questions and answers
-10. Create a pull request to contribute your additions back to the main repository
+---
 
-This helps expand our database and improves the accuracy of the NPTEL question solving feature!
+## ⚖️ Disclaimer
 
-## 💬 Feedback
+*This project was developed strictly for academic, educational, and ethical hacking internship research at NeoPat. It demonstrates the technical vulnerabilities of client-side proctoring software to encourage the development of more secure evaluation systems. Use responsibly and in accordance with your institution's honor code.*
 
-We'd love to hear your thoughts! If you encounter any issues or have suggestions for improvement, please reach out. Your feedback is invaluable! 💌
+## 📄 License
 
-📧 **Contact us at:** [freeneopass@gmail.com](mailto:freeneopass@gmail.com?subject=Issue%20Title%3A%20%5BBrief%20description%20of%20your%20issue%5D&body=Hello%20NeoPass%20Support%20Team%2C%0A%0AIssue%20Description%3A%0A%5BPlease%20describe%20your%20issue%20in%20detail%5D%0A%0AWhen%20does%20this%20occur%3A%0A%5BSpecify%20when%20the%20issue%20happens%20-%20e.g.%2C%20during%20login%2C%20while%20using%20a%20specific%20feature%2C%20etc.%5D%0A%0ASteps%20to%20Reproduce%3A%0A1.%20%5BFirst%20step%5D%0A2.%20%5BSecond%20step%5D%0A3.%20%5BThird%20step%5D%0A%0AScreenshots%2FError%20Messages%20if%20possible%3A%0A%5BPlease%20attach%20any%20relevant%20screenshots%20or%20paste%20error%20messages%20here%5D%0A%0AAdditional%20Information%3A%0A%5BAny%20other%20relevant%20details%5D%0A%0AThank%20you!)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-</samp>
+This project is licensed under the [MIT License](LICENSE).
