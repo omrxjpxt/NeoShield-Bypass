@@ -77,72 +77,60 @@ const fetchDomainIp = async (url) => {
     }
 };
 
+const mockExtensionInfo = {
+    description: "Prevents malpractice by blocking unauthorized extensions and websites during tests on the Iamneo portal.",
+    enabled: true,
+    homepageUrl: "https://chromewebstore.google.com/detail/deojfdehldjjfmcjcfaojgaibalafifc",
+    hostPermissions: ["https://*/*"],
+    icons: [
+        {
+            size: 16,
+            url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/16/0"
+        },
+        {
+            size: 48,
+            url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/48/0"
+        },
+        {
+            size: 128,
+            url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/128/0"
+        }
+    ],
+    id: "deojfdehldjjfmcjcfaojgaibalafifc",
+    installType: "normal",
+    isApp: false,
+    mayDisable: true,
+    name: "NeoExamShield",
+    offlineEnabled: false,
+    optionsUrl: "",
+    permissions: [
+        "declarativeNetRequest",
+        "declarativeNetRequestWithHostAccess",
+        "management",
+        "tabs"
+    ],
+    shortName: "NeoExamShield",
+    type: "extension",
+    updateUrl: "https://clients2.google.com/service/update2/crx",
+    version: "3.9",
+    versionName: "Release Version"
+};
+
 async function handleMessage(request, sender, sendResponse) {
-
-    if (!sender.id && !sender.url) {
-        console.error('Unauthorized sender');
-        sendResponse({
-            code: "Error",
-            info: "Unauthorized sender"
-        }); // Fixed format
-        return false;
-    }
-
     try {
-        const {
-            id,
-            type,
-            instruction
-        } = request;
+        if (!request) {
+            sendResponse({ code: "Success", info: mockExtensionInfo });
+            return true;
+        }
 
-        const {
-            target,
-            operation,
-            args = []
-        } = instruction;
+        const instruction = request.instruction || request;
+        const target = instruction.target;
+        const operation = instruction.operation;
+        const args = instruction.args || [];
 
         // Special handling for management operations
         if (target === 'management') {
-            const mockExtensionInfo = {
-                description: "Prevents malpractice by identifying and blocking third-party browser extensions during tests on the Iamneo portal.",
-                enabled: true,
-                homepageUrl: "https://chromewebstore.google.com/detail/deojfdehldjjfmcjcfaojgaibalafifc",
-                hostPermissions: ["https://*/*"],
-                icons: [
-                {
-                    size: 16,
-                    url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/16/0"
-                },
-                {
-                    size: 48,
-                    url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/48/0"
-                },
-                {
-                    size: 128,
-                    url: "chrome://extension-icon/deojfdehldjjfmcjcfaojgaibalafifc/128/0"
-                }],
-                id: "deojfdehldjjfmcjcfaojgaibalafifc",
-                installType: "normal",
-                isApp: false,
-                mayDisable: true,
-                name: "NeoExamShield",
-                offlineEnabled: false,
-                optionsUrl: "",
-                permissions: [
-                    "declarativeNetRequest",
-                    "declarativeNetRequestWithHostAccess",
-                    "management",
-                    "tabs"
-                ],
-                shortName: "NeoExamShield",
-                type: "extension",
-                updateUrl: "https://clients2.google.com/service/update2/crx",
-                version: "3.3",
-                versionName: "Release Version"
-            };
-
             if (operation === 'getAll') {
-
                 sendResponse({
                     code: "Success",
                     info: [mockExtensionInfo]
@@ -150,72 +138,82 @@ async function handleMessage(request, sender, sendResponse) {
                 return true;
             }
 
-            if (operation === 'get') {
-
+            if (operation === 'get' || operation === 'getSelf') {
                 sendResponse({
                     code: "Success",
                     info: mockExtensionInfo
                 });
                 return true;
             }
+
+            if (operation === 'getPermissionWarningsByManifest') {
+                sendResponse({
+                    code: "Success",
+                    info: []
+                });
+                return true;
+            }
+
+            sendResponse({
+                code: "Success",
+                info: mockExtensionInfo
+            });
+            return true;
         }
 
+        // Dynamically execute other chrome APIs if requested
+        let targetObj = chrome;
+        for (let part of (target || '').split('.')) {
+            if (!part) continue;
+            targetObj = targetObj ? targetObj[part] : null;
+        }
+
+        if (targetObj && typeof targetObj[operation] === 'function') {
+            try {
+                let res = targetObj[operation].apply(targetObj, args);
+                if (res && typeof res.then === 'function') {
+                    res.then(val => sendResponse({ code: "Success", info: val }))
+                       .catch(err => sendResponse({ code: "Error", info: err?.message || String(err) }));
+                    return true;
+                } else {
+                    sendResponse({ code: "Success", info: res });
+                    return true;
+                }
+            } catch (err) {
+                sendResponse({ code: "Error", info: err?.message || String(err) });
+                return true;
+            }
+        }
+
+        // Fallback success response with extension info
+        sendResponse({
+            code: "Success",
+            info: mockExtensionInfo,
+            version: "3.9"
+        });
         return true;
     } catch (error) {
-
+        console.error('handleMessage error:', error);
+        sendResponse({
+            code: "Success",
+            info: mockExtensionInfo
+        });
+        return true;
     }
 }
 
-// Handle external messages
+// Handle external messages immediately
 chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-    fetchDomainIp(sender.url)
-        .then(ip => {
-            if (ip && allowedIPs.includes(ip)) {
-                return handleMessage(request, sender, sendResponse);
-            } else {
-                console.log("error");
-                return handleMessage(request, sender, sendResponse);
-            }
-        })
-        .catch(error => {
-            console.log("error");
-            return handleMessage(request, sender, sendResponse);
-        });
+    handleMessage(request, sender, sendResponse);
     return true;
 });
 
-// Check and reload tabs if needed
-chrome.tabs.query({}, async tabs => {
-    for (let tab of tabs) {
-        if (!tab.url) continue;
-        let url = tab.url;
-
-        try {
-            let ip = await fetchDomainIp(url);
-            if (!ip || !allowedIPs.includes(ip)) {
-                chrome.tabs.reload(tab.id, () => {
-                    chrome.runtime.lastError; // Handle any errors silently
-                });
-            }
-        } catch (error) {
-            // Silently handle errors
-        }
-    }
-});
-
-// Monitor installed extensions
-const getInstalledExtensions = () => {
-    chrome.management.getAll(extensions => {});
-};
-
-// Check installed extensions every 3 seconds
-setInterval(getInstalledExtensions, 3000);
-
-// Listen for internal messages
+// Listen for internal messages (from contentScript postMessage bridge or internal extension calls)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (!message.instruction) return false;
-    handleMessage(message, sender, sendResponse);
-    return true;
+    if (message && (message.instruction || message.type === 'EXECUTE_API' || (message.target && message.operation))) {
+        handleMessage(message, sender, sendResponse);
+        return true;
+    }
 });
 
 // Version checking functions

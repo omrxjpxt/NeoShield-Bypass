@@ -124,10 +124,8 @@ if (document.readyState === 'loading') {
 
 // Listen for window messages
 window.addEventListener("message", function(event) {
-  // Only process messages that:
-  // 1. Come from the same window
-  // 2. Are targeted for the extension
-  if (event.data.target === "extension") {
+  // Only process messages targeted for the extension
+  if (event.data && event.data.target === "extension") {
       // Forward the message to the extension's background script
       chrome.runtime.sendMessage(event.data.message, response => {
           // Send the response back to the window
@@ -136,17 +134,6 @@ window.addEventListener("message", function(event) {
               response: response
           }, "*");
       });
-  }
-});
-
-window.addEventListener("message", function (event) {
-
-  if (event.source === window && event.data.target === "extension") {
-
-    browser.runtime.sendMessage(event.data.message, (response) => {
-
-      window.postMessage({ source: "extension", response: response }, "*");
-    });
   }
 });
 

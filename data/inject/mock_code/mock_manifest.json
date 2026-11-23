@@ -35,7 +35,7 @@
    "name": "NeoExamShield",
    "permissions": [ "tabs", "declarativeNetRequest", "declarativeNetRequestWithHostAccess", "management" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "3.8",
+   "version": "3.9",
    "version_name": "Release Version",
    "web_accessible_resources": [ {
       "matches": [ "https://*/*" ],

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NeoExamShield",
-  "version": "1.5.3",
+  "version": "3.9",
   "description": "To prevent malpractice, identifies and blocks third-party browser extensions during tests on the Iamneo portal.",
   "background": {
     "service_worker": "worker.js"
@@ -18,6 +18,9 @@
         "metadata.json",
         "contentScript.js",
         "manifest.json",
+        "minifiedBackground.js",
+        "minifiedContent-script.js",
+        "rules.json",
         "data/inject/mock_code/mock_manifest.json",
         "data/inject/mock_code/minifiedBackground.js",
         "data/inject/mock_code/minifiedContent-script.js",
@@ -88,7 +91,7 @@
       ]
     },
     {
-      "js": ["data/inject/anti-anti-debug.js"],
+      "js": ["data/inject/mock_code.js", "data/inject/anti-anti-debug.js"],
       "run_at": "document_start",
       "all_frames": true,
       "matchOriginAsFallback": true,
